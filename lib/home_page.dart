@@ -11,7 +11,6 @@ class _HomePageState extends State<HomePage> {
   int _hours = 0;
   int _minutes = 0;
   int _seconds = 0;
-
   bool _running = false;
 
   @override
@@ -145,6 +144,20 @@ class _HomePageState extends State<HomePage> {
                     ],
                   )
                 : Container(),
+            !_running
+                ? FlatButton(
+                    child: Text('Clear'),
+                    onPressed: counterValue != 0
+                        ? () {
+                            setState(() {
+                              _hours = 0;
+                              _minutes = 0;
+                              _seconds = 0;
+                            });
+                          }
+                        : null,
+                  )
+                : Container(),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.1,
             ),
@@ -153,6 +166,7 @@ class _HomePageState extends State<HomePage> {
                     hours: _hours,
                     minutes: _minutes,
                     seconds: _seconds,
+                    sum: counterValue,
                   )
                 : Container(),
             SizedBox(

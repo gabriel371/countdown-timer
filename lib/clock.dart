@@ -11,6 +11,7 @@ class Clock extends StatefulWidget {
   int hours;
   int minutes;
   int seconds;
+  int sum;
 
   Clock({
     Key key,
@@ -20,6 +21,7 @@ class Clock extends StatefulWidget {
     this.hours = 0,
     this.minutes = 0,
     this.seconds = 0,
+    this.sum = 0,
   }) : super(key: key);
 
   @override
@@ -35,21 +37,39 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
   int minutes = 0;
   int seconds = 30;
 
+  int get getHours {
+    return this.widget.hours;
+  }
+
+  int get getMinutes {
+    return this.widget.minutes;
+  }
+
+  int get getSeconds {
+    return this.widget.seconds;
+  }
+
   void startTimer() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
-        if (seconds > 0) {
-          seconds--;
-        } else if (minutes > 0) {
-          seconds = 60;
-          minutes--;
-          seconds--;
-        } else if (hours > 0) {
-          minutes = 60;
-          seconds = 60;
-          hours--;
-          minutes--;
-          seconds--;
+        if (getSeconds > 0) {
+          setState(() {
+            this.widget.seconds--;
+          });
+        } else if (getMinutes > 0) {
+          setState(() {
+            this.widget.seconds = 60;
+            this.widget.minutes--;
+            this.widget.seconds--;
+          });
+        } else if (getHours > 0) {
+          setState(() {
+            this.widget.minutes = 60;
+            this.widget.seconds = 60;
+            this.widget.hours--;
+            this.widget.minutes--;
+            this.widget.seconds--;
+          });
         } else {
           _timer.cancel();
         }
@@ -66,7 +86,7 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
   void run() {
     startTimer();
     this._controller = AnimationController(
-      duration: Duration(seconds: ((hours * 3600) + (minutes * 60) + seconds)),
+      duration: Duration(seconds: this.widget.sum),
       vsync: this,
     );
     this._controller.forward();
@@ -124,15 +144,15 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      widget.hours.toString(),
+                      getHours.toString(),
                       style: TextStyle(fontSize: 30),
                     ),
                     Text(
-                      widget.minutes.toString(),
+                      getMinutes.toString(),
                       style: TextStyle(fontSize: 60),
                     ),
                     Text(
-                      widget.seconds.toString(),
+                      getSeconds.toString(),
                       style: TextStyle(fontSize: 120),
                     ),
                   ],
