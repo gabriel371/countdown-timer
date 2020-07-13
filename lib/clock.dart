@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'clock_painter.dart';
@@ -6,12 +8,18 @@ class Clock extends StatefulWidget {
   final Color backgroundColor;
   final Color foregroundColor;
   final double value;
+  int hours;
+  int minutes;
+  int seconds;
 
   Clock({
     Key key,
     this.backgroundColor,
-    @required this.foregroundColor,
-    @required this.value,
+    this.foregroundColor = Colors.white,
+    this.value = 1,
+    this.hours = 0,
+    this.minutes = 0,
+    this.seconds = 0,
   }) : super(key: key);
 
   @override
@@ -22,15 +30,46 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Tween<double> valueTween;
   Animation<double> curve;
+  Timer _timer;
+  int hours = 0;
+  int minutes = 0;
+  int seconds = 30;
+
+  void startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (seconds > 0) {
+          seconds--;
+        } else if (minutes > 0) {
+          seconds = 60;
+          minutes--;
+          seconds--;
+        } else if (hours > 0) {
+          minutes = 60;
+          seconds = 60;
+          hours--;
+          minutes--;
+          seconds--;
+        } else {
+          _timer.cancel();
+        }
+      });
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    run();
+  }
+
+  void run() {
+    startTimer();
     this._controller = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: ((hours * 3600) + (minutes * 60) + seconds)),
       vsync: this,
     );
-    this._controller.repeat();
+    this._controller.forward();
     this.curve = CurvedAnimation(
       parent: this._controller,
       curve: Curves.easeInOut,
@@ -85,8 +124,16 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Placeholder',
-                      style: TextStyle(fontSize: 40),
+                      widget.hours.toString(),
+                      style: TextStyle(fontSize: 30),
+                    ),
+                    Text(
+                      widget.minutes.toString(),
+                      style: TextStyle(fontSize: 60),
+                    ),
+                    Text(
+                      widget.seconds.toString(),
+                      style: TextStyle(fontSize: 120),
                     ),
                   ],
                 ),
