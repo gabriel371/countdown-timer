@@ -28,7 +28,7 @@ class Clock extends StatefulWidget {
   _ClockState createState() => _ClockState();
 }
 
-class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
+class _ClockState extends State<Clock> with TickerProviderStateMixin {
   AnimationController _controller;
   Tween<double> valueTween;
   Animation<double> curve;
@@ -36,17 +36,18 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
   int hours = 0;
   int minutes = 0;
   int seconds = 30;
+  bool dynamicClock = false;
 
   int get getHours {
-    return this.widget.hours;
+    return widget.hours;
   }
 
   int get getMinutes {
-    return this.widget.minutes;
+    return widget.minutes;
   }
 
   int get getSeconds {
-    return this.widget.seconds;
+    return widget.seconds;
   }
 
   void startTimer() {
@@ -54,24 +55,25 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
       setState(() {
         if (getSeconds > 0) {
           setState(() {
-            this.widget.seconds--;
+            widget.seconds--;
           });
         } else if (getMinutes > 0) {
           setState(() {
-            this.widget.seconds = 60;
-            this.widget.minutes--;
-            this.widget.seconds--;
+            widget.seconds = 60;
+            widget.minutes--;
+            widget.seconds--;
           });
         } else if (getHours > 0) {
           setState(() {
-            this.widget.minutes = 60;
-            this.widget.seconds = 60;
-            this.widget.hours--;
-            this.widget.minutes--;
-            this.widget.seconds--;
+            widget.minutes = 60;
+            widget.seconds = 60;
+            widget.hours--;
+            widget.minutes--;
+            widget.seconds--;
           });
         } else {
           _timer.cancel();
+          _controller.stop();
         }
       });
     });
@@ -80,18 +82,18 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    run();
+    startTimer();
+    animate();
   }
 
-  void run() {
-    startTimer();
-    this._controller = AnimationController(
-      duration: Duration(seconds: this.widget.sum),
+  void animate() {
+    _controller = AnimationController(
+      duration: Duration(seconds: widget.sum),
       vsync: this,
     );
-    this._controller.forward();
-    this.curve = CurvedAnimation(
-      parent: this._controller,
+    _controller.forward();
+    curve = CurvedAnimation(
+      parent: _controller,
       curve: Curves.easeInOut,
     );
   }
@@ -103,63 +105,48 @@ class _ClockState extends State<Clock> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(Clock oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (this.widget.value != oldWidget.value) {
-      double beginValue =
-          this.valueTween?.evaluate(this._controller) ?? oldWidget?.value ?? 0;
-      this.valueTween = Tween<double>(
-        begin: beginValue,
-        end: this.widget.value ?? 1,
-      );
-      this._controller
-        ..value = 0
-        ..forward();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final backgroundColor = this.widget.backgroundColor;
-    final foregroundColor = this.widget.foregroundColor;
-    this.valueTween = Tween<double>(
+    final backgroundColor = widget.backgroundColor;
+    valueTween = Tween<double>(
       begin: 0,
-      end: this.widget.value,
+      end: 1,
     );
 
     return AspectRatio(
       aspectRatio: 1,
       child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return CustomPaint(
-              foregroundPainter: ClockPainter(
-                backgroundColor: backgroundColor,
-                foregroundColor: foregroundColor,
-                percentage: this.valueTween.evaluate(this._controller),
+        animation: _controller,
+        builder: (context, child) {
+          return CustomPaint(
+            foregroundPainter: ClockPainter(
+              backgroundColor: backgroundColor,
+              foregroundColor: Colors.white,
+              percentage: valueTween.evaluate(_controller),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    getHours.toString(),
+                    style: TextStyle(
+                      fontSize: 30,
+                    ),
+                  ),
+                  Text(
+                    getMinutes.toString(),
+                    style: TextStyle(fontSize: 60),
+                  ),
+                  Text(
+                    getSeconds.toString(),
+                    style: TextStyle(fontSize: 120),
+                  ),
+                ],
               ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      getHours.toString(),
-                      style: TextStyle(fontSize: 30),
-                    ),
-                    Text(
-                      getMinutes.toString(),
-                      style: TextStyle(fontSize: 60),
-                    ),
-                    Text(
-                      getSeconds.toString(),
-                      style: TextStyle(fontSize: 120),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
 }

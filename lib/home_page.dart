@@ -23,6 +23,20 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             !_running
+                ? FlatButton(
+                    child: Text('Max'),
+                    onPressed: counterValue < 86399
+                        ? () {
+                            setState(() {
+                              _hours = 23;
+                              _minutes = 59;
+                              _seconds = 59;
+                            });
+                          }
+                        : null,
+                  )
+                : Container(),
+            !_running
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -33,11 +47,18 @@ class _HomePageState extends State<HomePage> {
                               Icons.arrow_drop_up,
                               size: 60,
                             ),
-                            onPressed: _hours > 23
+                            onPressed: _hours > 22
                                 ? null
                                 : () {
                                     setState(() {
                                       _hours++;
+                                    });
+                                  },
+                            onLongPress: _hours > 22
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _hours = 23;
                                     });
                                   },
                           ),
@@ -58,6 +79,13 @@ class _HomePageState extends State<HomePage> {
                                       _hours--;
                                     });
                                   },
+                            onLongPress: _hours <= 0
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _hours = 0;
+                                    });
+                                  },
                           ),
                         ],
                       ),
@@ -70,14 +98,23 @@ class _HomePageState extends State<HomePage> {
                             ),
                             onPressed: _minutes >= 59
                                 ? () {
-                                    setState(() {
-                                      _minutes = 0;
-                                      _hours++;
-                                    });
+                                    if (_hours < 23) {
+                                      setState(() {
+                                        _minutes = 0;
+                                        _hours++;
+                                      });
+                                    }
                                   }
                                 : () {
                                     setState(() {
                                       _minutes++;
+                                    });
+                                  },
+                            onLongPress: _minutes >= 59
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _minutes = 59;
                                     });
                                   },
                           ),
@@ -98,6 +135,13 @@ class _HomePageState extends State<HomePage> {
                                       _minutes--;
                                     });
                                   },
+                            onLongPress: _minutes <= 0
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _minutes = 0;
+                                    });
+                                  },
                           ),
                         ],
                       ),
@@ -110,14 +154,23 @@ class _HomePageState extends State<HomePage> {
                             ),
                             onPressed: _seconds >= 59
                                 ? () {
-                                    setState(() {
-                                      _seconds = 0;
-                                      _minutes++;
-                                    });
+                                    if (_minutes < 59) {
+                                      setState(() {
+                                        _seconds = 0;
+                                        _minutes++;
+                                      });
+                                    }
                                   }
                                 : () {
                                     setState(() {
                                       _seconds++;
+                                    });
+                                  },
+                            onLongPress: _seconds >= 59
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _seconds = 59;
                                     });
                                   },
                           ),
@@ -136,6 +189,13 @@ class _HomePageState extends State<HomePage> {
                                 : () {
                                     setState(() {
                                       _seconds--;
+                                    });
+                                  },
+                            onLongPress: _seconds <= 0
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _seconds = 0;
                                     });
                                   },
                           ),
